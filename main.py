@@ -40,11 +40,15 @@ SessionDep = Annotated[Session, Depends(get_session)]
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errors = []
+    for error in exc.errors():
+        errors.append({"loc": error["loc"], "msg": error["msg"], "type": error["type"]})
+
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content={
             "message": "Invalid input data",
-            "errors": exc.errors(),
+            "errors": errors,
         },
     )
 
