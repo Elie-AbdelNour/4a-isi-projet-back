@@ -80,7 +80,7 @@ def signup(
             detail="username already in use",
         )
 
-    user = User(username=data.username, password=password_hash.hash(data.password))
+    user = User(username=data.username, password_hash=password_hash.hash(data.password))
 
     session.add(user)
     session.commit()
@@ -99,10 +99,16 @@ def login(
 ):
     statement = select(User).where(User.username == data.username)
     user = session.exec(statement).first()
-    if not user or not password_hash.verify(data.password, user.password):
+    if not user or not password_hash.verify(data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
+        )
+
+    if user.is_blocked:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is blocked",
         )
 
     setup_access_token(response, user)
