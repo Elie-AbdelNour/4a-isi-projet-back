@@ -4,3 +4,4 @@ pwdlib[argon2]
 python-dotenv
 pydantic
 sqlmodel
+sqlalchemy

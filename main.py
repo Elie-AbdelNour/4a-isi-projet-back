@@ -8,6 +8,7 @@ from fastapi import Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pwdlib import PasswordHash
+from sqlalchemy import event
 from sqlmodel import Session, create_engine, select
 
 from dto.login import LoginRequest, SignupRequest
@@ -27,6 +28,12 @@ sqlite_url = f"sqlite:///{sqlite_file_name}"
 
 connect_args = {"check_same_thread": False}
 engine = create_engine(sqlite_url, connect_args=connect_args)
+
+
+@event.listens_for(engine, "connect")
+def enable_foreign_keys(connection, _connection_record):
+    cursor = connection.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 
 # https://fastapi.tiangolo.com/tutorial/sql-databases/#create-an-engine
