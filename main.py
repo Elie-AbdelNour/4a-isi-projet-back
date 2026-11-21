@@ -75,7 +75,7 @@ def signup(
     statement = select(User).where(User.username == data.username)
     user = session.exec(statement).first()
     if user is not None:
-        return HTTPException(
+        raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="username already in use",
         )
